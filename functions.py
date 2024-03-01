@@ -1,10 +1,7 @@
 import pandas as pd 
 import numpy as np
-import matplotlib.pyplot as plt
-import ipywidgets as ipyw
 import datetime as dt
 import sympy as sym
-import matplotlib.pyplot as plt
 import datetime as dt
 import os
 #%matplotlib notebook
