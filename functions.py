@@ -33,11 +33,11 @@ def get_nuclides_dataframe():
     return nuclide_name_list
 
 def get_dc_hl(nuclide_name):
-    import radioactivedecay as rad
+    from radioactivedecay import Nuclide
     nuclide_value = nuclide_name
     nuclides_dataframe = get_nuclides_dataframe()
     selected_nuclide=nuclides_dataframe[nuclides_dataframe==nuclide_value]
-    nucl=rad.Nuclide(selected_nuclide)
+    nucl=Nuclide(selected_nuclide)
     half_life=nucl.half_life('h')
     decay_constant=np.log(2)/half_life
     print(half_life)                               
