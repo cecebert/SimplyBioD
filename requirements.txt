@@ -4,4 +4,3 @@ pandas==2.0.3
 altair==5.1.2
 numpy==1.26.1
 radioactivedecay==0.4.22
-matplotlib==3.7.2
