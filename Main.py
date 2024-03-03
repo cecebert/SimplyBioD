@@ -116,9 +116,9 @@ if 'nuclide' not in st.session_state:
 if '_nuclide' not in st.session_state:
     st.session_state['_nuclide']='11C'
 
-columns_exp_info[1].selectbox("Select the Nuclide", df_nuclides['name'], key = 'nuclide')
+nuclide_selection=columns_exp_info[1].selectbox("Select the Nuclide", df_nuclides, key = 'nuclide')
 
-(dc, hl) = get_dc_hl()  
+(dc, hl) = get_dc_hl(nuclide_selection)  
 
 organs_for_widget=str.split('Blood Tumor Heart Lungs Liver Spleen Stomach Pancreas Kidney Sm.Intestine Lg.Intestine Fat Muscle Bone Skin')
 
