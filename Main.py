@@ -7,7 +7,6 @@ from functions import *
 import sys
 import time
 sys.path.append('../')
-from database_creation import *
 from streamlit_sortables import sort_items
 
 st.set_page_config(page_title='SimplyBioD',layout="wide")
