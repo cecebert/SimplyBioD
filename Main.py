@@ -4,6 +4,7 @@ import numpy as np
 import altair as alt
 from collections import defaultdict
 from functions import *
+import radioactivedecay as rad
 import sys
 import time
 sys.path.append('../')
