@@ -1,4 +1,7 @@
-streamlit==1.31
+altair==5.1.2
+pandas==2.0.3
+radioactivedecay==0.4.21
+streamlit==1.32
 streamlit-aggrid==0.3.4.post3
 streamlit-authenticator==0.2.3
 streamlit-camera-input-live==0.2.0
@@ -11,6 +14,3 @@ streamlit-keyup==0.2.0
 streamlit-sortables==0.2.0
 streamlit-toggle-switch==1.0.2
 streamlit-vertical-slider==1.0.2
-altair==5.1.2
-pandas==2.0.3
-radioactivedecay==0.4.21
