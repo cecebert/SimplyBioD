@@ -36,11 +36,11 @@ def get_dc_hl(nuclide_name):
     from radioactivedecay import Nuclide
     nuclide_value = nuclide_name
     nuclides_dataframe = get_nuclides_dataframe()
-    selected_nuclide=nuclides_dataframe[nuclides_dataframe==nuclide_value]
+    selected_nuclide=nuclide_name
     nucl=Nuclide(selected_nuclide)
     half_life=nucl.half_life('h')
-    decay_constant=np.log(2)/half_life
-    print(half_life)                               
+    decay_constant=np.log(2)/half_life  
+    print(nucl)
     return decay_constant, half_life
 
 def get_organ_list():
