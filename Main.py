@@ -8,7 +8,6 @@ import sys
 import time
 sys.path.append('../')
 from streamlit_sortables import sort_items
-import openpyxl
 
 st.set_page_config(page_title='SimplyBioD', layout='wide', initial_sidebar_state ='collapsed')
 
