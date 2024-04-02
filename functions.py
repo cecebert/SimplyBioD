@@ -4,6 +4,7 @@ import datetime as dt
 import os
 #%matplotlib notebook
 import streamlit as st
+from radioactivedecay import Nuclide
 
 #from sqlalchemy import create_engine
 #from sqlalchemy.engine import URL
@@ -27,21 +28,7 @@ import streamlit as st
 #Session = sessionmaker(bind=engine)
 #session = Session()
 
-def get_nuclides_dataframe():
-    nuclide_name_list=['11C', ' 13N', ' 15O', ' 18F', ' 32P', ' 35S', ' 43Sc', ' 44Sc', ' 47Sc', ' 45Ti', ' 48V', ' 51Cr', ' 51Mn', ' 52Mn', ' 52Fe', ' 55Co', ' 57Ni', ' 60Cu', ' 61Cu', ' 62Cu', ' 64Cu', ' 66Cu', ' 67Cu', ' 62Zn', ' 67Ga', ' 68Ga', ' 69Ge', ' 70As', ' 71As', ' 72As', ' 74As', ' 76As', ' 77As', ' 76Br', ' 77Br', ' 81mKr', ' 82Rb', ' 82mRb', ' 83Sr', ' 89Sr', ' 86Y', ' 90Y', ' 89Zr', ' 97Zr', ' 90Nb', ' 99Mo', ' 94mTc', ' 99mTc', ' 97Ru', ' 105Rh', ' 111Ag', ' 111In', ' 110mIn', ' 123I', ' 124I', ' 125I', ' 131I', ' 127Xe', ' 133Xe', ' 134La', ' 134Ce', ' 153Sm', ' 149Tb', ' 152Tb', ' 155Tb', ' 161Tb', ' 166Ho', ' 165Er', ' 169Er', ' 177Lu', ' 186Re', ' 188Re', ' 192Ir', ' 195mPt', ' 198Au', ' 197Hg', ' 197mHg', ' 201Tl', ' 203Pb', ' 212Pb', ' 212Bi', ' 213Bi', ' 211At', ' 223Ra', ' 225Ac', ' 227Th']
-    #nuclides_dataframe=pd.read_sql_table('nuclide', connection)
-    return nuclide_name_list
 
-def get_dc_hl(nuclide_name):
-    from radioactivedecay import Nuclide
-    nuclide_value = nuclide_name
-    nuclides_dataframe = get_nuclides_dataframe()
-    selected_nuclide=nuclide_name
-    nucl=Nuclide(selected_nuclide)
-    half_life=nucl.half_life('h')
-    decay_constant=np.log(2)/half_life  
-    print(nucl)
-    return decay_constant, half_life
 
 def get_organ_list():
     organs_df=pd.read_sql_table('organ', connection)
