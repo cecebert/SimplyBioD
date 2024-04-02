@@ -143,7 +143,7 @@ columns_exp_info[1].info('  Notice: The following datetime inputs will be the re
 
 columns_exp_info_2 = columns_exp_info[1].columns(2)
 
-date_exp=columns_exp_info_2[0].date_input("Date of the experiment", key='_date_exp')
+date_exp=columns_exp_info_2[0].date_input("Date of Start of counting time", key='_date_exp')
 
 time_exp=columns_exp_info_2[1].time_input("Start of counting time",step=60, key='_time_exp')
 
