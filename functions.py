@@ -4,6 +4,7 @@ import datetime as dt
 import os
 #%matplotlib notebook
 import streamlit as st
+from radioactivedecay import Nuclide
 
 #from sqlalchemy import create_engine
 #from sqlalchemy.engine import URL
@@ -33,7 +34,6 @@ def get_nuclides_dataframe():
     return nuclide_name_list
 
 def get_dc_hl(nuclide_name):
-    from radioactivedecay import Nuclide
     nuclide_value = nuclide_name
     nuclides_dataframe = get_nuclides_dataframe()
     selected_nuclide=nuclides_dataframe[nuclides_dataframe==nuclide_value]
