@@ -8,10 +8,9 @@ import sys
 import time
 sys.path.append('../')
 from streamlit_sortables import sort_items
+import openpyxl
 
-st.set_page_config(page_title='SimplyBioD',layout="wide")
-
-
+st.set_page_config(page_title='SimplyBioD', layout='wide', initial_sidebar_state ='collapsed')
 
 st.title('Page for biodistribution experiments')
 
@@ -85,22 +84,29 @@ with st.sidebar:
         st.markdown('<div style="text-align: justify;">    </div>', unsafe_allow_html=True)
     
     st.divider()
+    
+    
+    
+    
+    
+    
 ### setting up the info input
 
 #Anagraphic input
 
 columns_exp_info = st.columns(2)
+
 columns_exp_info[0].subheader("Experimenter information", divider='blue')
 
 
 
-columns_exp_info[0].text_input('Enter name', key='__name')
+name=columns_exp_info[0].text_input('Enter name', key='__name')
 
-columns_exp_info[0].text_input('Enter surname', key='_surname')
+surname=columns_exp_info[0].text_input('Enter surname', key='_surname')
 
-columns_exp_info[0].text_input('Enter your email', key='_email')
+email=columns_exp_info[0].text_input('Enter your email', key='_email')
 
-columns_exp_info[0].text_input('Enter your institution name', key='_institution')
+institution=columns_exp_info[0].text_input('Enter your institution name', key='_institution')
 
 
 #Experiment details input
@@ -110,16 +116,13 @@ columns_exp_info[1].subheader("Experimental details", divider='blue')
 
 df_nuclides = get_nuclides_dataframe()
 
-if 'nuclide' not in st.session_state:
-    st.session_state['nuclide']='11C'
-if '_nuclide' not in st.session_state:
-    st.session_state['_nuclide']='11C'
-
-nuclide_selection=columns_exp_info[1].selectbox("Select the Nuclide", df_nuclides, key = 'nuclide')
+nuclide_selection=columns_exp_info[1].selectbox("Select the Nuclide", df_nuclides)
 
 (dc, hl) = get_dc_hl(nuclide_selection)  
 
-organs_for_widget=str.split('Blood Tumor Heart Lungs Liver Spleen Stomach Pancreas Kidney Sm.Intestine Lg.Intestine Fat Muscle Bone Skin')
+columns_exp_info[1].success('Half-life of the nuclide: ' +str(np.round(hl, 2)) + ' hours')
+
+organs_for_widget=str.split('Blood Tumor Heart Lungs Liver Spleen Stomach Pancreas Kidney Sm.Intestine Lg.Intestine Fat Muscle Bone Skin Urine Gallbladder Tail Lymphnode Sal.Gland Occ.Bone Duodenum Jejunum Ileum Cecum Asc.Colon Desc.Colon Rectum Brain Adr.Gland')
 
 columns_exp_info[1].info('  Notice: The following datetime inputs will be the reference point to all decay corrections', icon='ℹ️')
 
@@ -127,23 +130,35 @@ columns_exp_info_2 = columns_exp_info[1].columns(2)
 
 date_exp=columns_exp_info_2[0].date_input("Date of the experiment", key='_date_exp')
 
-time_exp=columns_exp_info_2[1].time_input("Starting time of the experiment",step=60, key='_time_exp')
+time_exp=columns_exp_info_2[1].time_input("Start of counting time",step=60, key='_time_exp')
+
+
+
+anagraphic_info=('Name',name, 'Surname',surname,'Email',email,'Institution', institution)
+
+exp_info=('Nuclide', nuclide_selection,'Date',date_exp,'Start of counting time', time_exp)
+
+
+mega_list=[]
+
+mega_list.extend(anagraphic_info)
+mega_list.extend(exp_info)
+
+
 
 #Gamma counter calibration setup
 
 st.header('Gamma counter calibration', divider='blue')
 
-columns_gamma_cnt_cal=st.columns(3)
+st.subheader('Dose calibrator background')
 
-columns_gamma_cnt_cal[0].subheader('Dose calibrator background')
+st.caption('Background of the dose calibrator machine')
 
-columns_gamma_cnt_cal[0].caption('Background of the dose calibrator machine')
+dose_cal_bckg=st.number_input(label='Value in MBq', step=1e-5, min_value=0.0, value=0.0001, format='%.5f')
 
-dose_cal_bckg=columns_gamma_cnt_cal[0].number_input(label='Value in MBq', step=1e-5, min_value=0.0, value=0.0001, format='%.5f')
+st.subheader('Standard Samples Parameters')
 
-columns_gamma_cnt_cal[1].subheader('Standard Samples Parameters')
-
-columns_gamma_cnt_cal[1].caption('Input values for the standard activity sample')
+st.caption('Input values for the standard activity sample')
 
 input_table_std =pd.DataFrame(columns=['Injected mass(g)',
                                            'Initial activity syringe (MBq)',
@@ -153,7 +168,7 @@ input_table_std =pd.DataFrame(columns=['Injected mass(g)',
                                            'Dilution datetime'], index=range(1))
 
 
-table1=columns_gamma_cnt_cal[1].data_editor(input_table_std, num_rows='fixed', 
+table1=st.data_editor(input_table_std, num_rows='fixed',hide_index=True,
                column_config={
         'Injected mass (g)': st.column_config.NumberColumn(format='%f', required=True),
         'Initial activity syringe (MBq)' : st.column_config.NumberColumn(format='%f', required=True),
@@ -164,81 +179,99 @@ table1=columns_gamma_cnt_cal[1].data_editor(input_table_std, num_rows='fixed',
     },key='calibration_syringe')
 
 input_table_std=pd.DataFrame(table1)
+
+mega_list.extend([input_table_std.to_dict(orient='tight',index=False)])
+
     
 # Configuring the Calibration Standard Table
 
-columns_gamma_cnt_cal[2].subheader('Calibration Standard')
+st.subheader('Calibration Standard')
 
-columns_gamma_cnt_cal[2].caption('Input')
+st.caption('Input')
 
 input_table_gc_calib =pd.DataFrame(columns=['Tare (g)',
                                         'Container + water (g)',
                                         'Container + water + Std. Syringe (g)'], index=range(1))
 
-table2=columns_gamma_cnt_cal[2].data_editor(input_table_gc_calib, num_rows='fixed', 
+table2=st.data_editor(input_table_gc_calib, num_rows='fixed', 
                    column_config={
                        'Tare (g)': st.column_config.NumberColumn(format='%f'),
                        'Container + water (g)': st.column_config.NumberColumn(format='%f'),
                        'Container + water + Std. Syringe (g)': st.column_config.NumberColumn(format='%f')
                        },)
-columns_gamma_cnt_cal[2].caption('Output')
+
+st.caption('Output')
 
 total_diluted_std=table2[table2.columns[2]]-table2[table2.columns[0]]
 
-columns_gamma_cnt_cal[2].write(pd.DataFrame(total_diluted_std, columns=['Total diluted standard (g)']))
+st.write(pd.DataFrame(total_diluted_std, columns=['Total diluted standard (g)']))
 
 total_diluted_std=np.array(total_diluted_std)[0]
+
+mega_list.extend([table2.to_dict(orient='tight',index=False), 
+                  'Total diluted std.', 
+                  total_diluted_std])
+
+
 
 # Configuring the Blanking gamma counter table
 
 
-columns_gamma_cnt_cal[0].subheader('Gamma counter background')
+st.subheader('Gamma counter background')
 
 input_table_blank_tubes =pd.DataFrame(columns=['Counts (CPM)'])
 
-subcolumns_gamma_cnt_cal=columns_gamma_cnt_cal[0].columns(2)
+st.caption('Input')
 
-subcolumns_gamma_cnt_cal[0].caption('Input')
-
-table3= subcolumns_gamma_cnt_cal[0].data_editor(input_table_blank_tubes, num_rows='dynamic', column_config= 
+table3= st.data_editor(input_table_blank_tubes, num_rows='dynamic', column_config= 
                    {
                        'Counts (CPM)': st.column_config.NumberColumn(format='%f')
                    },key='blank_tubes')
+
 
 st.session_state['gamma_counter_blank']=table3
 
 average_bckg=table3.mean()
 
-subcolumns_gamma_cnt_cal[1].caption('Average Background:')
+mega_list.extend(['Dose calibrator bckg. (MBq)',
+                  dose_cal_bckg,
+                  table3,
+                  'Average Background (CPM)',
+                  average_bckg[0]])
 
-subcolumns_gamma_cnt_cal[1].write(average_bckg)
+st.caption('Average Background:')
 
-columns_gamma_cnt_cal[1].subheader('Standard Syringe/Tube calibration')
+st.write(average_bckg)
 
-columns_gamma_cnt_cal[1].caption('Insert the data from the standard samples')
+st.subheader('Standard Syringe/Tube calibration')
+
+st.caption('Insert the data from the standard samples')
 
 input_table_calib_syr=pd.DataFrame(columns=['Sample Mass (net,g)','Counts (CPM)'])
 
-subcolumns2=columns_gamma_cnt_cal[1].columns(2)
 
-subcolumns2[0].caption('Input')
 
-table4= subcolumns2[0].data_editor(input_table_calib_syr, num_rows='dynamic', column_config= 
+st.caption('Input')
+
+table4= st.data_editor(input_table_calib_syr, 
+                       num_rows='dynamic', 
+                       column_config= 
                        {
                            'Sample Mass (net,g)': st.column_config.NumberColumn(format='%f'),
                            'Counts (CPM)': st.column_config.NumberColumn(format='%f')
-                       }, key='standard_syringes')
+                       }, 
+                       key='standard_syringes')
+
 
 bckg_corrected_norm_cpm_per_g= (table4[table4.columns[1]] - average_bckg[0]) / table4[table4.columns[0]]
 
-subcolumns2[1].caption('Output')
 
-subcolumns2[1].write((pd.DataFrame(bckg_corrected_norm_cpm_per_g,columns=['Nomalised CPM/g'])))
+st.caption('Output')
 
+st.write((pd.DataFrame(bckg_corrected_norm_cpm_per_g,columns=['Nomalised CPM/g'])))
 
 
 avg_bckg_corrected_norm_cpm_per_g=bckg_corrected_norm_cpm_per_g.mean()
-
 
 
 total_bckg_corrected_norm_cpm_per_g=avg_bckg_corrected_norm_cpm_per_g*total_diluted_std
@@ -248,18 +281,29 @@ total_bckg_corrected_norm_cpm_per_g=avg_bckg_corrected_norm_cpm_per_g*total_dilu
 total_bckg_corrected_norm_cpm_per_g_injectate= total_bckg_corrected_norm_cpm_per_g / float(table1[table1.columns[0]][0])
 
 
+mega_list.extend([pd.DataFrame(table3).to_dict(orient='tight',index=False), 
+                  'Average gamma counter bckgr (CPM)', 
+                  average_bckg[0], 
+                  table4.to_dict(orient='tight',index=False), 
+                  'Background-corrected norm. CPM/g', 
+                  bckg_corrected_norm_cpm_per_g,
+                 'Total bckg. corrected norm. CPM/g', 
+                 total_bckg_corrected_norm_cpm_per_g,
+                 'Total bckg. corrected norm. CPM/g of injectate',
+                 total_bckg_corrected_norm_cpm_per_g_injectate])
+
+
 st.divider()
+
 st.subheader('Results')
 
+st.caption('Gamma counter blanking and calibration results')
+
+st.write(pd.DataFrame([avg_bckg_corrected_norm_cpm_per_g, total_bckg_corrected_norm_cpm_per_g,total_bckg_corrected_norm_cpm_per_g_injectate], index=['Average Normalised Bckg corrected : ', 'Total Normalised Bckg corrected (Standard tube): ','Total Normalised Bckg corrected CPM/g (Injectate)'], columns=['CPM/g']))
+
+st.caption('Decay correction results')
 
 
-results_subcolumns=st.columns(3)
-
-results_subcolumns[0].caption('Gamma counter blanking and calibration results')
-
-results_subcolumns[0].write(pd.DataFrame([avg_bckg_corrected_norm_cpm_per_g, total_bckg_corrected_norm_cpm_per_g,total_bckg_corrected_norm_cpm_per_g_injectate], index=['Average Normalised Bckg corrected : ', 'Total Normalised Bckg corrected (Standard tube): ','Total Normalised Bckg corrected CPM/g (Injectate)'], columns=['CPM/g']))
-
-results_subcolumns[1].caption('Decay correction results')
 
 try:
     
@@ -267,12 +311,32 @@ try:
     
     cpm_per_mbq_per_g=total_bckg_corrected_norm_cpm_per_g_injectate/(corrected_syringe_activity_at_counting_start/float(table1[table1.columns[0]][0]))
         
-    results_subcolumns[1].write(pd.DataFrame([corrected_syringe_activity_at_injection, corrected_syringe_activity_at_counting_start, cpm_per_mbq_per_g ],
+    st.write(pd.DataFrame([corrected_syringe_activity_at_injection, corrected_syringe_activity_at_counting_start, cpm_per_mbq_per_g ],
                                             index=['Corrected syr, activity (injection)', 'Corrected syr. activity (counting start)', 'CPM / MBq per g'], columns=['Value']))
     
-except:
-    results_subcolumns[1].warning('You are missing some information for the decay corrections, please check the sections above', icon='⚠️')
+    mega_list.extend(['Corrected syringe activity at injection (MBq)',
+                      corrected_syringe_activity_at_injection,
+                      'CPM per MBq per g of injectate',
+                      cpm_per_mbq_per_g,
+                      'Corrected syr. activity at counting start) (MBq)',
+                      corrected_syringe_activity_at_counting_start])
+
+    mega_list=pd.DataFrame(mega_list).to_csv()
     
+    columns_download_button=st.columns(2)
+    
+    filename_1=columns_download_button[0].text_input(label='File Name', value='Data_1')
+    
+    columns_download_button[0].download_button(label='Download all data above as .csv', 
+                      data=mega_list, 
+                      file_name=str(filename_1)+'.csv', 
+                      type='primary'
+                      )
+    
+    
+    
+except:
+    st.warning('You are missing some information for the decay corrections, please check the sections above', icon='⚠️')
 
 st.subheader('Injection parameters', divider='blue')
     
@@ -335,10 +399,10 @@ else:
     
     cols1[0].caption('Insert the net mass of the organs (g)')
     
-    input_table_organs_cpms=pd.DataFrame(columns=['Mouse ' + str(x) for x in range(len(table5))], 
+    input_table_organs_cpms=pd.DataFrame(columns=['Mouse ' + str(x+1) for x in range(len(table5))], 
                                          index=st.session_state.organs_list)
     
-    input_table_organs_mass=pd.DataFrame(columns=['Mouse ' + str(x) for x in range(len(table5))], 
+    input_table_organs_mass=pd.DataFrame(columns=['Mouse ' + str(x+1) for x in range(len(table5))], 
                                          index=st.session_state.organs_list)
     
     dic_col_org=defaultdict(list)
@@ -360,6 +424,9 @@ else:
     st.header('Plotting the inserted values', divider='blue')
     
     try:
+        mega_list_2=[]
+        
+        mega_list_2.extend(['Mouse Data (user input)', table5.to_dict(orient='tight', index=False),'Organ mass (g) (user input)', table7, 'Organ CPMs (user input)', table6])
         
         table7_float=table7.astype(float)
         
@@ -370,6 +437,8 @@ else:
         table8_alt_formatted=table8.T.reset_index().melt(id_vars='index')
         
         table8_alt_formatted.columns=['mouse', 'organ', 'CPM / g']
+        
+        table9=table8.subtract(average_bckg[0]).divide(cpm_per_mbq_per_g).T
         
         table_9_alt_formatted=table8.subtract(average_bckg[0]).divide(cpm_per_mbq_per_g).T.reset_index().melt(id_vars='index')
         
@@ -435,7 +504,6 @@ else:
         
         st.subheader('Aggregated data plots')
     
-    
         st.markdown('Customize your mean SUV plot')
         
         plot1_customisation=st.columns(3)
@@ -455,6 +523,8 @@ else:
         chart1=alt.Chart(table14_alt).mark_bar(color=color13, opacity=opacity13).encode(alt.X('organ', sort=None).title('Organ'), alt.Y('mean(value)').title('Mean SUV (g)'))
         
         chart2=alt.Chart(table14_alt).mark_errorbar(extent='stdev', ticks=True, color='black', size=8).encode(alt.X('organ', sort=None), alt.Y('mean(value)').title(''))
+        
+        mega_list_2.extend(['Mean SUV (g)',table14, 'Descriptive stats. on SUV', table14.describe()])
          
         st.divider()
         
@@ -482,7 +552,8 @@ else:
         
         chart4=alt.Chart(table13_alt).mark_errorbar(extent='stdev', ticks=True, color='black', size=8).encode(alt.X('organ', sort=None).title('Organ'), alt.Y('mean(value)').title(''))
         
-        
+        mega_list_2.extend(['Mean %ID/g',table13.T, 'Descriptive stats. on Mean %ID/g', table13.describe()])
+
         p2_width=plot2_customisation[1].number_input('Width of the plot (pixels)', value=400,min_value=100, step=10, max_value=2000, key='p2width')
         
         p2_heigth=plot2_customisation[1].number_input('Height of the plot (pixels)', value=300,min_value=100, step=10, max_value=2000, key='p2height')
@@ -495,7 +566,6 @@ else:
         st.divider()
         
         plot2_results=st.columns(2)
-        
         
         st.altair_chart(alt.layer(chart3, chart4, data=table13_alt).configure_axis(
             labelColor='black', 
@@ -515,9 +585,6 @@ else:
         st.write(table13.T.describe())
         
         st.divider()
-        
-        
-        
         
         ## Insert contrast ratio elaboration here
         
@@ -557,6 +624,7 @@ else:
             width=p2_width,
             height=p2_heigth), theme=None)
         
+        mega_list_2.extend(['Contrast ratio', table_contrast, 'Descriptive stats. on contrast ratio', table_contrast.T.describe()])
         
         st.markdown('Contrast ratio based on the % ID /g')
         
@@ -607,6 +675,8 @@ else:
         
         chart6=alt.Chart(table8_alt_formatted).mark_bar().encode(alt.Column('mouse'), alt.X('organ').title(''), alt.Y('CPM / g', axis=alt.Axis(tickCount=5, format=".1e")).title('Norm. CPM/g'), alt.Color('mouse').scale(scheme='tableau20'))
         
+        mega_list_2.extend(['Norm.CPM/g', table8.T])
+        
         st.altair_chart(chart5,theme=None)
         
         st.altair_chart(chart6,theme=None)
@@ -618,6 +688,8 @@ else:
         chart7=alt.Chart(table_9_alt_formatted).mark_bar().encode(alt.Column('organ'), alt.X('mouse').title(''), alt.Y('MBq / g', axis=alt.Axis(tickCount=5)).title('MBq / g'), alt.Color('mouse').scale(scheme='tableau20'))
         
         chart8=alt.Chart(table10).mark_bar().encode(alt.Column('mouse'), alt.X('organ', sort=None).title(''), alt.Y('MBq / g', axis=alt.Axis(tickCount=5)).title('MBq / g'), alt.Color('mouse').scale(scheme='tableau20'))
+        
+        mega_list_2.extend(['MBq/g Table', table11.T])
         
         st.altair_chart(chart7,theme=None)
         
@@ -635,6 +707,8 @@ else:
         
         st.altair_chart(chart10,theme=None)
         
+        mega_list_2.extend(['% ID/g Table', table13.T])
+        
         st.markdown('% Injected dose per gram')
         
         st.write(table13.T)
@@ -649,19 +723,24 @@ else:
         
         st.markdown('SUV table')
         
+        mega_list_2.extend(['SUV Table', table14])
+        
+        st.write(mega_list_2)
+        
         st.write(table14)
         
-        chart13=alt.Chart(table_contrast1).mark_bar().encode(alt.Column('organ'), alt.X('mouse').title(''), alt.Y('value', axis=alt.Axis(tickCount=5)).title('Contrast ratio'), alt.Color('mouse').scale(scheme='tableau20'))
+        mega_list_2=pd.DataFrame(mega_list_2).to_csv()
+    
+        columns_download_button_2=st.columns(2)
         
-        chart14=alt.Chart(table_contrast1).mark_bar().encode(alt.Column('mouse'), alt.X('organ').title(''), alt.Y('value', axis=alt.Axis(tickCount=5)).title('Contrast ratio'), alt.Color('mouse').scale(scheme='tableau20'))
+        filename_2=columns_download_button_2[0].text_input(label='File Name', value='Data_2', key='asdasdf')
         
-        st.altair_chart(chart13, theme=None)
+        columns_download_button_2[0].download_button(label='Download all data above as .csv', 
+                      data=mega_list_2, 
+                      file_name=str(filename_2)+'.csv', 
+                      type='primary', key='asdas'
+                      )
         
-        st.altair_chart(chart14, theme=None)
-        
-        st.markdown('Contrast ratio based on % ID / g')
-        
-        st.write(table_contrast.T)
         
     except:
         st.warning('Missing data, plotting will not begin until all data will be provided')
