@@ -15,6 +15,8 @@ from radioactivedecay import Nuclide
 
 st.set_page_config(page_title='SimplyBioD', layout='wide', initial_sidebar_state ='expanded')
 
+st.image('simplybiod_logo.png')
+
 def get_nuclides_dataframe():
     nuclide_name_list=['11C', ' 13N', ' 15O', ' 18F', ' 32P', ' 35S', ' 43Sc', ' 44Sc', ' 47Sc', ' 45Ti', ' 48V', ' 51Cr', ' 51Mn', ' 52Mn', ' 52Fe', ' 55Co', ' 57Ni', ' 60Cu', ' 61Cu', ' 62Cu', ' 64Cu', ' 66Cu', ' 67Cu', ' 62Zn', ' 67Ga', ' 68Ga', ' 69Ge', ' 70As', ' 71As', ' 72As', ' 74As', ' 76As', ' 77As', ' 76Br', ' 77Br', ' 81mKr', ' 82Rb', ' 82mRb', ' 83Sr', ' 89Sr', ' 86Y', ' 90Y', ' 89Zr', ' 97Zr', ' 90Nb', ' 99Mo', ' 94mTc', ' 99mTc', ' 97Ru', ' 105Rh', ' 111Ag', ' 111In', ' 110mIn', ' 123I', ' 124I', ' 125I', ' 131I', ' 127Xe', ' 133Xe', ' 134La', ' 134Ce', ' 153Sm', ' 149Tb', ' 152Tb', ' 155Tb', ' 161Tb', ' 166Ho', ' 165Er', ' 169Er', ' 177Lu', ' 186Re', ' 188Re', ' 192Ir', ' 195mPt', ' 198Au', ' 197Hg', ' 197mHg', ' 201Tl', ' 203Pb', ' 212Pb', ' 212Bi', ' 213Bi', ' 211At', ' 223Ra', ' 225Ac', ' 227Th']
     
