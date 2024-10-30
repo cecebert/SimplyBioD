@@ -66,6 +66,8 @@ def decay_correct(time_exp, date_exp, full_syr_datetime, residual_syr_datetime,i
     injected_activity_at_counting_start= injected_activity_at_injection * np.exp(-decay_const *(((start_counting_datetime-injection_datetime).total_seconds())/3600))
     
     print(start_counting_datetime)
+    print(full_syr_datetime)
+    print(residual_syr_datetime)
     print(injected_activity_at_injection)
     return injected_activity_at_injection, injected_activity_at_counting_start
 
