@@ -30,7 +30,7 @@ def get_dc_hl(nuclide_name):
     print(nucl)
     return decay_constant, half_life
 
-st.title('Page for biodistribution experiments')
+st.title('Simply BioD: online biodistribution tool')
 
 with st.sidebar:
     st.header('Quickstart tutorial', divider='blue')
