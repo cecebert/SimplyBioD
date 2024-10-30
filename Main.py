@@ -17,18 +17,21 @@ st.set_page_config(page_title='SimplyBioD', layout='wide', initial_sidebar_state
 
 def get_nuclides_dataframe():
     nuclide_name_list=['11C', ' 13N', ' 15O', ' 18F', ' 32P', ' 35S', ' 43Sc', ' 44Sc', ' 47Sc', ' 45Ti', ' 48V', ' 51Cr', ' 51Mn', ' 52Mn', ' 52Fe', ' 55Co', ' 57Ni', ' 60Cu', ' 61Cu', ' 62Cu', ' 64Cu', ' 66Cu', ' 67Cu', ' 62Zn', ' 67Ga', ' 68Ga', ' 69Ge', ' 70As', ' 71As', ' 72As', ' 74As', ' 76As', ' 77As', ' 76Br', ' 77Br', ' 81mKr', ' 82Rb', ' 82mRb', ' 83Sr', ' 89Sr', ' 86Y', ' 90Y', ' 89Zr', ' 97Zr', ' 90Nb', ' 99Mo', ' 94mTc', ' 99mTc', ' 97Ru', ' 105Rh', ' 111Ag', ' 111In', ' 110mIn', ' 123I', ' 124I', ' 125I', ' 131I', ' 127Xe', ' 133Xe', ' 134La', ' 134Ce', ' 153Sm', ' 149Tb', ' 152Tb', ' 155Tb', ' 161Tb', ' 166Ho', ' 165Er', ' 169Er', ' 177Lu', ' 186Re', ' 188Re', ' 192Ir', ' 195mPt', ' 198Au', ' 197Hg', ' 197mHg', ' 201Tl', ' 203Pb', ' 212Pb', ' 212Bi', ' 213Bi', ' 211At', ' 223Ra', ' 225Ac', ' 227Th']
+    
+    half_lives=('0.3394	0.166083333	0.033955556	1.8295	342.432	2096.88	3.891	3.97	80.3808	3.08	383.364	664.86	0.77	134.184	8.275	17.53	35.6	0.395	3.339	0.161216667	12.701	0.085333333	61.83	9.186	78.2808	1.1285	39.05	0.876666667	65.3	26	426.48	26.2608	38.83	16.2	57.036	0.003638889	0.020958333	6.472	32.41	1213.512	14.74	64.053	78.41	16.749	14.6	65.976	0.866666667	6.0067	67.92	35.36	178.8	67.3128	1.151666667	13.2235	100.224	1425.768	192.6048	872.304	125.94	0.1075	75.84	46.284	4.118	17.5	127.68	165.36	26.824	10.36	225.408	159.528	89.2464	17.003	1771.896	96.24	64.6584	64.14	23.8	73.0104	51.92	10.64	1.009166667	0.760166667	7.214	274.32	238.08	448.728').split('\t')
     #nuclides_dataframe=pd.read_sql_table('nuclide', connection)
-    return nuclide_name_list
+    
+    dict_nuclides=dict(zip(nuclide_name_list, np.array(half_lives, dtype=float)))
+    return dict_nuclides
 
 def get_dc_hl(nuclide_name):
     nuclide_value = nuclide_name
-    nuclides_dataframe = get_nuclides_dataframe()
-    selected_nuclide=nuclide_name
-    nucl=Nuclide(selected_nuclide)
-    half_life=nucl.half_life('h')
-    decay_constant=np.log(2)/half_life  
-    print(nucl)
+    half_life=get_nuclides_dataframe()[nuclide_name]
+    decay_constant=np.log(2)/half_life
+    
+    
     return decay_constant, half_life
+
 
 st.title('Simply BioD: online biodistribution tool')
 
@@ -132,23 +135,13 @@ institution=columns_exp_info[0].text_input('Enter your institution name', key='_
 
 columns_exp_info[1].subheader("Experimental details", divider='blue')
 
-df_nuclides = get_nuclides_dataframe()
-
-pretty_names_nuclides=[]
-for i in range(len(df_nuclides)):
-
-    name=re.split('(\d+)',df_nuclides[i])
-    
-    name_pretty='$^{'+str(name[1])+'}$'+str(name[2])
-    
-    pretty_names_nuclides.append(name_pretty)
-    
+df_nuclides = get_nuclides_dataframe()   
 
 nuclide_selection=columns_exp_info[1].selectbox("Select the Nuclide", df_nuclides)
 
 (dc, hl) = get_dc_hl(nuclide_selection)  
 
-columns_exp_info[1].success('Half-life of the nuclide: ' +str(np.round(hl, 2)) + ' h     ||     Decay constant: ' + str(np.round(dc, 3)) + ' h$^{-1}$')
+columns_exp_info[1].success('Half-life of the nuclide: ' +str(np.round(hl, 4)) + ' h     ||     Decay constant: ' + str(np.round(dc, 4)) + ' h$^{-1}$')
 
 organs_for_widget=str.split('Blood Tumor Heart Lungs Liver Spleen Stomach Pancreas Kidney Sm.Intestine Lg.Intestine Fat Muscle Bone Skin Urine Gallbladder Tail Lymphnode Sal.Gland Occ.Bone Duodenum Jejunum Ileum Cecum Asc.Colon Desc.Colon Rectum Brain Adr.Gland')
 
