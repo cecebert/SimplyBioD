@@ -143,7 +143,6 @@ for i in range(len(df_nuclides)):
     
     pretty_names_nuclides.append(name_pretty)
     
-st.write(pretty_names_nuclides[0])
 
 nuclide_selection=columns_exp_info[1].selectbox("Select the Nuclide", df_nuclides)
 
