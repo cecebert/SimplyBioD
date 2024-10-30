@@ -455,7 +455,6 @@ else:
         
         table8=(table6_float-float(average_bckg)).divide(table7_float)
         
-        table8
         
         table8_alt_formatted=table8.T.reset_index().melt(id_vars='index')
         
@@ -500,7 +499,6 @@ else:
         
         table13=table11.divide(table12['Activity at counting start, MBq'].values) *100
         
-        table13
         
         table13_alt=pd.melt(table13.T.reset_index(),id_vars='mouse')
         
