@@ -40,8 +40,9 @@ st.title('Experiment details')
 with st.sidebar:
     st.header('Welcome to SimplyBioD', divider='blue')
     st.subheader('Open-source Biodistribution data analysis dashboard for radioactive ☢️ tracers. This web application features more than 80 nuclides useful for imaging and therapy scopes. You will find below a quickstart tutorial for the use of this webstie.')
+    
+    st.header('Quickstart tutorial', divider='blue')
     with st.expander(label='Section explanation'):
-        st.header('Quickstart tutorial', divider='blue')
         st.subheader('Experimenter information and experimental details')
     with st.expander(label='Section explanation'):
         
