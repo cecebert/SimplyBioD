@@ -42,8 +42,7 @@ with st.sidebar:
     st.subheader('Open-source Biodistribution data analysis dashboard for radioactive ☢️ tracers. This web application features more than 80 nuclides useful for imaging and therapy scopes. You will find below a quickstart tutorial for the use of this webstie.')
     
     st.header('Quickstart tutorial', divider='blue')
-    with st.expander(label='Section explanation'):
-        st.subheader('Experimenter information and experimental details')
+    st.subheader('Experimenter information and experimental details')
     with st.expander(label='Section explanation'):
         
         st.markdown('<div style="text-align: justify;">In this section you can input the anagraphic information of the experimenter. On the right side, you can choose the nuclide and introduce the date and time at which every decay correction will be carried. </div>', unsafe_allow_html=True)
